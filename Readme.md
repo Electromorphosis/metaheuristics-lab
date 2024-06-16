@@ -8,4 +8,7 @@ The problem is NP-complete if k is part of the input. It is also NP-complete if 
 
 ## Repo structure
 - **data/** - directory with test data
-- **graphs.cpp** - used for graph generation and visualisation; temporarily main equivalent.
+- **include/** - directory with globally used utilities. 
+
+- **importer.h** - utilities related to importing; currently works only for csv files and into adjacency matrices.
+- **graphs.cpp** - used for graph generation and visualisation; _temporarily main equivalent._
