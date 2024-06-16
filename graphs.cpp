@@ -5,6 +5,8 @@
 #include "include/Exporter.h"
 #include "include/ObjectiveFunction.h"
 
+#include "algo/BruteForce.h"
+
 using namespace mhe;
 using std::cout;
 using std::cerr;
@@ -95,4 +97,19 @@ int main(int argc, char* argv[]) {
     SIZE = 5;
     vector<vector<int>> smallMatrix = generateRandomGraphAdjacencyMatrix();
     printPrettyMatrix(smallMatrix);
+    vector<int> smallMatrixRandomAssignment = randomAssign(adjMatrix, k);
+    // Todo: There might be a bug within random assignment algorithm - not sure if it may provide assymetrically cut graphs!? Too tired to check it now, but should do tomorrow...
+//    cout << "\nRandom Assignment for small matrix ";
+//    printAssignment(smallMatrixRandomAssignment);
+//    vector<vector<int>> smallMatrixRandAssignmentCostMatrix = ObjectiveFunction::calculateCostMatrix(smallMatrix, smallMatrixRandomAssignment);
+//    printPrettyMatrix(smallMatrixRandAssignmentCostMatrix);
+//    int smallMatrixCostValue = ObjectiveFunction::getCostValue(smallMatrixRandAssignmentCostMatrix);
+//    cout << "Cost value: " << smallMatrixCostValue;
+
+    vector<int> bruteForceBestAssignment = BruteForce::calculate(smallMatrix, k);
+    printAssignment(bruteForceBestAssignment, false, true);
+    vector<vector<int>> smallMatrixRandAssignmentCostMatrixBF = ObjectiveFunction::calculateCostMatrix(smallMatrix, bruteForceBestAssignment);
+    printPrettyMatrix(smallMatrixRandAssignmentCostMatrixBF);
+    int smallMatrixCostValueBF = ObjectiveFunction::getCostValue(smallMatrixRandAssignmentCostMatrixBF);
+    cout << "\nCost value (Brute Force/Full Review): " << smallMatrixCostValueBF;
 }

@@ -78,7 +78,7 @@ namespace mhe {
         // Nicer method for printing matrix values in a visual table
 
         // Write horizontal
-        std::cout << "  | ";
+        std::cout << "\n  | ";
 
         for (int i = 0; i < SIZE; i++) {
             std::cout << i << "   ";
@@ -120,7 +120,10 @@ namespace mhe {
         return nodeAssginment;
     }
 
-    void printAssignment(const std::vector<int>&assignment, bool dict = false) {
+    void printAssignment(const std::vector<int>&assignment, bool dict = false, bool fullPrint = false) {
+        if (fullPrint) {
+            cout << "\nAssignment ";
+        }
         cout << "= { ";
             for (int i = 0; i < assignment.size(); i++) {
                 if(assignment.size() != i+1) {

@@ -18,7 +18,7 @@ public:
                 sum += value;
             }
         }
-        return sum;
+        return sum / 2;
     };
 
     static std::vector<std::vector<int>> calculateCostMatrix(const std::vector<std::vector<int>>& weighedGraph, const std::vector<int>& assignment) {
