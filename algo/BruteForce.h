@@ -25,10 +25,14 @@ public:
             bestAssignment.at(i) = i;
         }
 
+
+
         return bestAssignment;
     }
 private:
+    static std::vector<int> iterateAssignments(const std::vector<int> initialAssignment) {
 
+    }
 };
 
 

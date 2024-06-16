@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
     vector<vector<int>> smallMatrix = generateRandomGraphAdjacencyMatrix();
     printPrettyMatrix(smallMatrix);
     vector<int> smallMatrixRandomAssignment = randomAssign(adjMatrix, k);
-    // Todo: There might be a bug within random assignment algorithm - not sure if it may provide assymetrically cut graphs!? Too tired to check it now, but should do tomorrow...
+    // Todo: Update - still not sure abt cost calc, might want to check after some sleep.
 //    cout << "\nRandom Assignment for small matrix ";
 //    printAssignment(smallMatrixRandomAssignment);
 //    vector<vector<int>> smallMatrixRandAssignmentCostMatrix = ObjectiveFunction::calculateCostMatrix(smallMatrix, smallMatrixRandomAssignment);
