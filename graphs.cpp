@@ -33,5 +33,5 @@ int main(int argc, char* argv[]) {
     std::vector<std::vector<int>> adjMatrix = generateRandomGraphAdjacencyMatrix();
 
     // Visualize initial results
-    writeResults(adjMatrix);
+    printPrettyMatrix(adjMatrix);
 }

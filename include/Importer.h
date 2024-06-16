@@ -12,9 +12,7 @@
 
 class Importer {
 public:
-    Importer();
-
-    std::vector<std::vector<int>> readCSVFileTo2DVector(const std::string& filepath) {
+    static std::vector<std::vector<int>> readCSVFileTo2DVector(const std::string& filepath) {
         std::vector<std::vector<int>> data;
 
         // Open the CSV file

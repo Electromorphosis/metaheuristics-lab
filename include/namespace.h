@@ -57,7 +57,7 @@ namespace mhe {
         std::cout << std::endl;
     }
 
-    void writeResults(const std::vector<std::vector<int>>& adjMatrix) {
+    void printPrettyMatrix(const std::vector<std::vector<int>>& adjMatrix) {
         // Nicer method for printing matrix values in a visual table
 
         // Write horizontal
