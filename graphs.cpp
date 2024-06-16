@@ -1,103 +1,27 @@
 //
 // Created by mechlon on 16.06.24.
 //
-#include <iostream>
-#include <vector>
-#include <cstdlib>
-#include <ctime>
+#include "include/namespace.h"
+using namespace mhe;
 
-namespace mhe {
-
-    const int NULL_WEIGHT = 0; // Value representing no edge
-    int MIN_WEIGHT = 1; // Minimum weight of the edges
-    int MAX_WEIGHT = 9; // Maximum weight of the edges
-    int SIZE = 9; // size of the matrix; sizes above 9 might not be fully well presented by visualizers
-
-    bool parseArguments(int argc, char* argv[], int& size, int& minWeight, int& maxWeight) {
-        for (int i = 1; i < argc; ++i) {
-            std::string arg = argv[i];
-            if (arg.find("--size=") == 0) {
-                SIZE = std::stoi(arg.substr(7));
-            } else if (arg.find("--min_weight=") == 0) {
-                MIN_WEIGHT = std::stoi(arg.substr(13));
-            } else if (arg.find("--max_weight=") == 0) {
-                MAX_WEIGHT = std::stoi(arg.substr(13));
-            } else {
-                return false; // Unknown argument
-            }
-        }
-        return true;
-    }
-
-    int getRandomWeight() {
-        return MIN_WEIGHT + rand() % (MAX_WEIGHT - MIN_WEIGHT + 1);
-    }
-
-    std::vector<std::vector<int>> generateRandomGraphAdjacencyMatrix() {
-        std::cout << "Generating graph with parameters:\nSize: " << SIZE << "\nMinWeight: " << MIN_WEIGHT << "\nMaxWeight: " << MAX_WEIGHT << "\n";
-        std::vector<std::vector<int>> matrix(SIZE, std::vector<int>(SIZE, NULL_WEIGHT));
-
-        for (int i = 0; i < SIZE; ++i) {
-            for (int j = i + 1; j < SIZE; ++j) {
-                int weight = getRandomWeight();
-                matrix[i][j] = weight;
-                matrix[j][i] = weight; // Ensure the matrix is symmetrical
-            }
-        }
-
-        return matrix;
-    }
-
-    // Function to print the adjacency matrix
-    void printAdjMatrix(const std::vector<std::vector<int>>& matrix) {
-        for (const auto& row : matrix) {
-            for (const auto& val : row) {
-                std::cout << val << " ";
-                if (val < 10) std::cout << " ";
-            }
-            std::cout << std::endl;
+bool parseArguments(int argc, char* argv[], int& size, int& minWeight, int& maxWeight) {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg.find("--size=") == 0) {
+            SIZE = std::stoi(arg.substr(7));
+        } else if (arg.find("--min_weight=") == 0) {
+            MIN_WEIGHT = std::stoi(arg.substr(13));
+        } else if (arg.find("--max_weight=") == 0) {
+            MAX_WEIGHT = std::stoi(arg.substr(13));
+        } else {
+            return false; // Unknown argument
         }
     }
-
-    // Function to print the adjacency matrix
-    void printAdjMatrixRow(const std::vector<std::vector<int>>& matrix, int rowNum) {
-            for (const auto& val : matrix.at(rowNum)) {
-                std::cout << val << "   ";
-                if (val < 10) std::cout << " ";
-            }
-            std::cout << std::endl;
-        }
-
-    void writeResults(const std::vector<std::vector<int>>& adjMatrix) {
-    // Nicer method for printing matrix values in a visual table
-
-        // Write horizontal
-        std::cout << " | ";
-
-        for (int i = 0; i < SIZE; i++) {
-            std::cout << i << "   ";
-            if(i < 10) std::cout << " ";
-        }
-        std::cout << "\n";
-        for (int i = 0; i < SIZE+1; i++) {
-            std::cout << "----";
-            if(i%2 == 0) std::cout << "-";
-            if(i > 12) std::cout << "-";
-        }
-
-        std::cout << "\n";
-
-        // Write vertical
-        for (int i = 0; i < SIZE; i++) {
-            std::cout << i << "| ";
-            printAdjMatrixRow(adjMatrix, i);
-        }
-    }
+    return true;
 }
-int main(int argc, char* argv[]) {
-    using namespace mhe;
 
-    // Parse arguments
+int main(int argc, char* argv[]) {
+
     if (!parseArguments(argc, argv, SIZE, MIN_WEIGHT, MAX_WEIGHT) || SIZE <= 0 || MIN_WEIGHT > MAX_WEIGHT) {
         std::cerr << "Usage: " << argv[0] << " --size=<size> --min_weight=<min_weight> --max_weight=<max_weight>" << std::endl;
         std::cerr << "Ensure size is positive and min_weight <= max_weight. Use only integers." << std::endl;
