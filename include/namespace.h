@@ -78,7 +78,7 @@ namespace mhe {
         // Nicer method for printing matrix values in a visual table
 
         // Write horizontal
-        std::cout << " | ";
+        std::cout << "  | ";
 
         for (int i = 0; i < SIZE; i++) {
             std::cout << i << "   ";
@@ -95,7 +95,11 @@ namespace mhe {
 
         // Write vertical
         for (int i = 0; i < SIZE; i++) {
-            std::cout << i << "| ";
+            if (i < 10) {
+                std::cout << i << " | ";
+            } else {
+                std::cout << i << "| ";
+            }
             printAdjMatrixRow(adjMatrix, i);
         }
     }
@@ -103,8 +107,8 @@ namespace mhe {
     std::vector<int> randomAssign(const std::vector<std::vector<int>>&inputGraph, int k) {
         std::vector<int> nodeAssginment;
         // This method assigns randomly each node in the graph to one of the partitions (i.e. making random cut).
-        if(k <= 0) {
-            std::cerr << "Provided k value must be greater than 0!";
+        if(k < 0) {
+            std::cerr << "\nProvided k value must be positive!";
             return nodeAssginment;
         }
 
