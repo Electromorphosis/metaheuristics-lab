@@ -27,7 +27,7 @@ namespace mhe {
     }
 
     std::vector<std::vector<int>> generateRandomGraphAdjacencyMatrix() {
-        std::cout << "Generating graph with parameters:\n\tSize: " << SIZE << "\n\tMinWeight: " << MIN_WEIGHT << "\n\tMaxWeight: " << MAX_WEIGHT << "\n";
+        std::cout << "\nGenerating graph with parameters:\n\tSize: " << SIZE << "\n\tMinWeight: " << MIN_WEIGHT << "\n\tMaxWeight: " << MAX_WEIGHT << "\n\n";
         std::vector<std::vector<int>> matrix(SIZE, std::vector<int>(SIZE, NULL_WEIGHT));
 
         for (int i = 0; i < SIZE; ++i) {

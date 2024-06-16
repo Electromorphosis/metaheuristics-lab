@@ -48,11 +48,10 @@ int main(int argc, char* argv[]) {
 
 
     int k = 3;
-    cout << "============\nObjective:\n\tK number: " << k << "\n";
-    vector<int> nodeRandomAssignment = randomAssign(adjMatrix, k);
-    cout << "\nRandom assignment\t\t";
-    printAssignment(nodeRandomAssignment);
-    cout << " : value";
+//    cout << "============\nObjective:\n\tK number: " << k << "\n";
+//    vector<int> nodeRandomAssignment = randomAssign(adjMatrix, k);
+//    cout << "\nRandom assignment\t\t";
+//    printAssignment(nodeRandomAssignment);
 //
 //    cout << "\nRandom neighbour 1\t\t";
 //    vector<int> nodeRandomNeighbour = generateNeighbourSolution(nodeRandomAssignment, k);
@@ -66,27 +65,34 @@ int main(int argc, char* argv[]) {
 //    printAssignment(nodeRandomNeighbour2);
 //    compareAssignments(nodeRandomNeighbour, nodeRandomNeighbour2);
 
-    cout << "\n\n=============\n|Cost Matrix|\n=============\n";
-    vector<vector<int>> randomAssignmentCostMatrix = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignment);
-    printPrettyMatrix(randomAssignmentCostMatrix);
-    int randomAssignmentCostValue = ObjectiveFunction::getCostValue(randomAssignmentCostMatrix);
-    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValue;
-    k = 2;
-    vector<int> nodeRandomAssignmentK2 = randomAssign(adjMatrix, k);
-    vector<vector<int>> randomAssignmentCostMatrixK2 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK2);
-    int randomAssignmentCostValueK2 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK2);
-    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK2;
+//    cout << "\n\n=============\n|Cost Matrix|\n=============\n";
+//    vector<vector<int>> randomAssignmentCostMatrix = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignment);
+//    int randomAssignmentCostValue = ObjectiveFunction::getCostValue(randomAssignmentCostMatrix);
+//    printPrettyMatrix(randomAssignmentCostMatrix);
+
+//    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValue;
+//    k = 2;
+//    vector<int> nodeRandomAssignmentK2 = randomAssign(adjMatrix, k);
+//    vector<vector<int>> randomAssignmentCostMatrixK2 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK2);
+//    int randomAssignmentCostValueK2 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK2);
+//    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK2;
+//    k = 1;
+//    vector<int> nodeRandomAssignmentK1 = randomAssign(adjMatrix, k);
+//    vector<vector<int>> randomAssignmentCostMatrixK1 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK1);
+//    int randomAssignmentCostValueK1 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK1);
+//    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK1;
+//    k = 0;
+//    vector<int> nodeRandomAssignmentK0 = randomAssign(adjMatrix, k);
+//    vector<vector<int>> randomAssignmentCostMatrixK0 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK0);
+//    int randomAssignmentCostValueK0 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK0);
+//    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK0;
+
+
+    cout << "Comprehensible (manually calculable) example:\n\t5 nodes\n\t2 partitions\n";
     k = 1;
-    vector<int> nodeRandomAssignmentK1 = randomAssign(adjMatrix, k);
-    vector<vector<int>> randomAssignmentCostMatrixK1 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK1);
-    int randomAssignmentCostValueK1 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK1);
-    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK1;
-    k = 0;
-    vector<int> nodeRandomAssignmentK0 = randomAssign(adjMatrix, k);
-    vector<vector<int>> randomAssignmentCostMatrixK0 = ObjectiveFunction::calculateCostMatrix(adjMatrix, nodeRandomAssignmentK0);
-    int randomAssignmentCostValueK0 = ObjectiveFunction::getCostValue(randomAssignmentCostMatrixK0);
-    cout << "\nCost value for random assignment (k=" << k << ") = " << randomAssignmentCostValueK0;
-
-
-
+    MIN_WEIGHT = 1;
+    MAX_WEIGHT = 9;
+    SIZE = 5;
+    vector<vector<int>> smallMatrix = generateRandomGraphAdjacencyMatrix();
+    printPrettyMatrix(smallMatrix);
 }
