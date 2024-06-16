@@ -2,6 +2,7 @@
 // Created by mechlon on 16.06.24.
 //
 #include "include/namespace.h"
+#include "include/Exporter.h"
 using namespace mhe;
 
 bool parseArguments(int argc, char* argv[], int& size, int& minWeight, int& maxWeight) {
@@ -27,11 +28,12 @@ int main(int argc, char* argv[]) {
         std::cerr << "Ensure size is positive and min_weight <= max_weight. Use only integers." << std::endl;
         return 1;
     }
-
     // Generate random weighed graph in a form of Adjacency Matrix
     srand(static_cast<unsigned int>(time(0))); // Seed the random number generator
     std::vector<std::vector<int>> adjMatrix = generateRandomGraphAdjacencyMatrix();
 
-    // Visualize initial results
-    printPrettyMatrix(adjMatrix);
+
+//    // Visualize initial results
+//    printPrettyMatrix(adjMatrix);
+
 }
