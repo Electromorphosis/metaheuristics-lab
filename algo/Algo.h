@@ -26,43 +26,6 @@ public:
         return costValue;
     }
 
-    // TODO: Those assignment logic below and in BruteForce.h needs refactoring - I need to get more thought about how to sensible generate ALL possible assignments or at least all of them one by one...
-    // self-explanatory title...
-    bool isValidAssignment(const std::vector<int>& assignment, int k) {
-        std::vector<int> count(k, 0);
-        for (int part : assignment) {
-            count[part]++;
-        }
-        for (int i = 0; i < k; ++i) {
-            if (count[i] == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // also self-explanatory - checks if next assignment exists
-    bool hasNextAssignment(std::vector<int>& assignment, int k) {
-        int n = assignment.size();
-
-        // Try to increment the assignment like a k-ary counter
-        for (int i = n - 1; i >= 0; --i) {
-            if (assignment[i] < k - 1) {
-                assignment[i]++;
-                // Reset all elements to the right
-                for (int j = i + 1; j < n; ++j) {
-                    assignment[j] = 0;
-                }
-                // Check if the new assignment is valid
-                if (isValidAssignment(assignment, k)) {
-                    return true;
-                }
-                i = n; // Restart the loop to recheck from the end
-            }
-        }
-        return false; // No more valid assignments
-    }
-
 };
 
 
