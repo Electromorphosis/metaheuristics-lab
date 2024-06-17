@@ -91,10 +91,10 @@ int main(int argc, char* argv[]) {
 
 
     cout << "Comprehensible (manually calculable) example:\n\t5 nodes\n\t2 partitions\n";
-    k = 1;
+    k = 2;
     MIN_WEIGHT = 1;
     MAX_WEIGHT = 9;
-    SIZE = 5;
+    SIZE = 3;
     vector<vector<int>> smallMatrix = generateRandomGraphAdjacencyMatrix();
     printPrettyMatrix(smallMatrix);
     vector<int> smallMatrixRandomAssignment = randomAssign(adjMatrix, k);
@@ -106,10 +106,20 @@ int main(int argc, char* argv[]) {
 //    int smallMatrixCostValue = ObjectiveFunction::getCostValue(smallMatrixRandAssignmentCostMatrix);
 //    cout << "Cost value: " << smallMatrixCostValue;
 
+
+    // Test of generation of all possible assignments
+    std::vector<int> bestAssignment(SIZE); // initalize with zeroes for the first assignments
+    vector<vector<int>> allAssignments;
+    cout << "\n[TEST] All possible assignments from generateAllAssignments:\n";
+    BruteForce::generateAllAssignments(SIZE, k, 0, bestAssignment, allAssignments);
+    printAdjMatrix(allAssignments);
+
+
     vector<int> bruteForceBestAssignment = BruteForce::calculate(smallMatrix, k);
-    printAssignment(bruteForceBestAssignment, false, true);
+    cout << "\nBest assignemnt due to BruteForce/Full-review method ";
+    printAssignment(bruteForceBestAssignment, false, false);
     vector<vector<int>> smallMatrixRandAssignmentCostMatrixBF = ObjectiveFunction::calculateCostMatrix(smallMatrix, bruteForceBestAssignment);
-    printPrettyMatrix(smallMatrixRandAssignmentCostMatrixBF);
     int smallMatrixCostValueBF = ObjectiveFunction::getCostValue(smallMatrixRandAssignmentCostMatrixBF);
     cout << "\nCost value (Brute Force/Full Review): " << smallMatrixCostValueBF;
+
 }
