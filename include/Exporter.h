@@ -57,7 +57,6 @@ public:
 //        // Footer
 //    }
 
-private:
     // Function to create a new file
     static void createNewFile(const std::string& filename) {
         std::ofstream file(filename, std::ios::out); // Create a new file (overwrite if exists)

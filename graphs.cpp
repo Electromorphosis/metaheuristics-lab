@@ -1,6 +1,7 @@
 //
 // Created by mechlon on 16.06.24.
 //
+#include <algorithm>
 #include "include/namespace.h"
 #include "include/Exporter.h"
 #include "include/ObjectiveFunction.h"
@@ -29,13 +30,19 @@ bool parseArguments(int argc, char* argv[], int& size, int& minWeight, int& maxW
 }
 
 int main(int argc, char* argv[]) {
-
+    // Parse args
     if (!parseArguments(argc, argv, SIZE, MIN_WEIGHT, MAX_WEIGHT) || SIZE <= 0 || MIN_WEIGHT > MAX_WEIGHT) {
         cerr << "Usage: " << argv[0] << " --size=<size> --min_weight=<min_weight> --max_weight=<max_weight>" << std::endl;
         cerr << "Ensure size is positive and min_weight <= max_weight. Use only integers." << std::endl;
         return 1;
     }
-    SIZE = 20;
+
+    // Prepare raport file
+    std::time_t result = std::time(nullptr);
+    std::string timestamp = std::asctime(std::localtime(&result));
+    std::replace(timestamp.begin(), timestamp.end(), ' ', '-');
+    std::string filename = "reports/MHE_raport_pmechlinski_" + timestamp + ".md";
+    Exporter::createNewFile(filename);
     // Generate random weighed graph in a form of Adjacency Matrix
     srand(static_cast<unsigned int>(time(0))); // Seed the random number generator
     vector<vector<int>> adjMatrix = generateRandomGraphAdjacencyMatrix();
@@ -97,6 +104,9 @@ int main(int argc, char* argv[]) {
     SIZE = 3;
     vector<vector<int>> smallMatrix = generateRandomGraphAdjacencyMatrix();
     printPrettyMatrix(smallMatrix);
+    Exporter::writeNewline("# Metaheuristics Report\nAuthor Paweł Mechliński\n## Randomly generated matrix:\n```", filename);
+    Exporter::writeNewline(stringPrettyMatrix(smallMatrix), filename);
+    Exporter::writeNewline("\n```", filename);
     vector<int> smallMatrixRandomAssignment = randomAssign(adjMatrix, k);
     // Todo: Update - still not sure abt cost calc, might want to check after some sleep.
 //    cout << "\nRandom Assignment for small matrix ";
@@ -117,9 +127,11 @@ int main(int argc, char* argv[]) {
 
     vector<int> bruteForceBestAssignment = BruteForce::calculate(smallMatrix, k);
     cout << "\nBest assignemnt due to BruteForce/Full-review method ";
+    Exporter::writeNewline("\n```", filename);
     printAssignment(bruteForceBestAssignment, false, false);
     vector<vector<int>> smallMatrixRandAssignmentCostMatrixBF = ObjectiveFunction::calculateCostMatrix(smallMatrix, bruteForceBestAssignment);
     int smallMatrixCostValueBF = ObjectiveFunction::getCostValue(smallMatrixRandAssignmentCostMatrixBF);
     cout << "\nCost value (Brute Force/Full Review): " << smallMatrixCostValueBF;
+
 
 }

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
+#include <sstream>
 
 namespace mhe {
     using std::cout;
@@ -74,6 +75,14 @@ namespace mhe {
         std::cout << std::endl;
     }
 
+    void stringAdjMatrixRow(const std::vector<std::vector<int>>& adjMatrix, int row, std::ostringstream& oss) {
+        for (int val : adjMatrix[row]) {
+            oss << val << "   ";
+            if (val < 10) oss << " ";
+        }
+        oss << "\n";
+    }
+
     void printPrettyMatrix(const std::vector<std::vector<int>>& adjMatrix) {
         // Nicer method for printing matrix values in a visual table
 
@@ -102,6 +111,39 @@ namespace mhe {
             }
             printAdjMatrixRow(adjMatrix, i);
         }
+    }
+
+
+    std::string stringPrettyMatrix(const std::vector<std::vector<int>>& adjMatrix) {
+        // Pretty tables to strings
+        std::ostringstream oss;
+        // Write horizontal
+        oss << "\n  | ";
+
+        for (int i = 0; i < SIZE; i++) {
+            oss << i << "   ";
+            if(i < 10) oss << " ";
+        }
+        oss << "\n";
+        for (int i = 0; i < SIZE + 1; i++) {
+            oss << "----";
+            if(i % 2 == 0) oss << "-";
+            if(i > 12) oss << "-";
+        }
+
+        oss << "\n";
+
+        // Write vertical
+        for (int i = 0; i < SIZE; i++) {
+            if (i < 10) {
+                oss << i << " | ";
+            } else {
+                oss << i << "| ";
+            }
+            stringAdjMatrixRow(adjMatrix, i, oss);
+        }
+
+        return oss.str();
     }
 
     std::vector<int> randomAssign(const std::vector<std::vector<int>>&inputGraph, int k) {
