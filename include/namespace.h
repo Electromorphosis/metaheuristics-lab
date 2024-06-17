@@ -146,21 +146,7 @@ namespace mhe {
         return oss.str();
     }
 
-    std::vector<int> randomAssign(const std::vector<std::vector<int>>&inputGraph, int k) {
-        std::vector<int> nodeAssginment;
-        // This method assigns randomly each node in the graph to one of the partitions (i.e. making random cut).
-        if(k < 0) {
-            std::cerr << "\nProvided k value must be positive!";
-            return nodeAssginment;
-        }
 
-        std::uniform_int_distribution<int> distrPartRange(0, k);
-        for (int i = 0; i < inputGraph.size(); i++) {
-            nodeAssginment.push_back(distrPartRange(mt));
-        }
-
-        return nodeAssginment;
-    }
 
     void printAssignment(const std::vector<int>&assignment, bool dict = false, bool fullPrint = false) {
         if (fullPrint) {
