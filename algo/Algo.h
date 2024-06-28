@@ -19,6 +19,21 @@ public:
 
     }
 
+    static bool isValidAssignment(const std::vector<int>& vec, int k) {
+        // Create a boolean array to track presence of numbers from 0 to k
+        std::vector<bool> found(k + 1, false); // Initialize all entries as false
+
+        // Mark numbers from vec that are within range 0 to k
+        for (int num : vec) {
+            if (num >= 0 && num <= k) {
+                found[num] = true;
+            }
+        }
+
+        // Check if any number from 0 to k is found
+        return std::any_of(found.begin(), found.end(), [](bool val) { return val; });
+    }
+
     // Wrapper to get cost value when I don't care about visualising all the middle steps, i.e. in algos that is.
     static int getAssignmentValue(const std::vector<std::vector<int>>& graph, const std::vector<int>& assignment) {
         std::vector<std::vector<int>> costMatrix = ObjectiveFunction::calculateCostMatrix(graph, assignment);
@@ -34,7 +49,7 @@ public:
             return nodeAssginment;
         }
 
-        std::uniform_int_distribution<int> distrPartRange(0, k);
+        std::uniform_int_distribution<int> distrPartRange(0, k-1);
         for (int i = 0; i < inputGraph.size(); i++) {
             nodeAssginment.push_back(distrPartRange(mhe::mt));
         }
