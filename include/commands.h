@@ -37,6 +37,19 @@ namespace commands {
 //    }
 // TODO: Fix or dump
 
+    void coutIf(bool quiet, const std::string& s) {
+        if(!quiet) {
+            cout << s;
+        }
+    }
+
+    bool isExistingFile(const std::string& path) {
+        fs::path filePath(path);
+
+        // Check if the file exists and is a regular file
+        return fs::exists(filePath) && fs::is_regular_file(filePath);
+    }
+
     std::vector<std::string> splitString(const std::string& input) {
         // Split comma-separated parameters into value vector
         std::vector<std::string> result;
@@ -118,9 +131,11 @@ namespace commands {
         }
 
         // Print parameters
-        std::cout << "Parameters:" << std::endl;
-        for (const auto& [key, value] : taggedParams) {
-            std::cout << "  " << key << ": " << value << std::endl;
+        if(taggedParams["Quiet"] == "false") { // redundant, no better idea for now here
+            std::cout << "Parameters:" << std::endl;
+            for (const auto& [key, value] : taggedParams) {
+                std::cout << "  " << key << ": " << value << std::endl;
+            }
         }
 
         if (!all_required_found) {
@@ -200,11 +215,6 @@ namespace commands {
     }
     // With enough tinkering I could probably refactor those two into one method, but as of now seems like too much hassle...
 
-    void run(int argc, char* argv[]) {
-        std::map<string, string> params = parseRunParams(argc, argv);
-    }
-
-
     void generate(int argc, char* argv[]) {
         std::map<string, string> params = parseGenParams(argc, argv);
 
@@ -274,6 +284,58 @@ namespace commands {
         std::vector<std::vector<int>> randomGraph = generateRandomGraphAdjacencyMatrix(nodes, minimumWeight, maximumWeight);
         printAdjMatrix(randomGraph);
         Exporter::exportToCSV(randomGraph, params["Output"]);
+    }
+
+    void run(int argc, char* argv[]) {
+        bool quietMode = false;
+        bool outputToFile = false;
+        bool validation = false;
+        std::map<string, string> params = parseRunParams(argc, argv);
+        if(params.empty()) return;
+        if(params["Quiet"] == "true") quietMode = true; // this need to be checked first
+        if(params["Output"] == "true") outputToFile = true; // actually this too, bc similarly I want to append some data to the output file all along
+        if(params["Validation"] == "true") validation = true; // this should be also added for completion... more printing ahead...!
+
+        coutIf(quietMode, "Parsing completed. Input validation starts...\n\n");
+
+        if(!isExistingFile(params["Input"])) {
+            std::cerr << "[ERROR] Provided input file does not exist! Exiting...\n"; // Ofc quiet mode is not related to error logging...
+            return;
+        }
+
+        // Import input file
+        // Validate if correct graph
+        // (Optional) Print basic graph stats
+
+
+
+        if(params["AlgoType"] == "full_review") {
+            // vector<string> outcome = runFullReview(importedGraph, quietMode);
+            // ifPrint(outcome);
+            // ifAppend(outcome);
+            // return;
+        } else if(params["AlgoType"] == "climbing") {
+            vector <string> climbingParams = splitString(params["AlgoParams"]);
+            string neighStrategy = climbingParams.at(0);
+            // Validate neighStrat val
+            string terminationStrategy = climbingParams.at(1);
+            // Validate
+            // split into map<string, int> termStratParsed
+            // vector<string> outcome = runClimbingAlgorithm(importedGraph, quietMode, neighStrat, termStratParsed.key, termStratParsed.value);
+            // ifPrint(outcome);
+            // ifAppend(outcome);
+            // return;
+        } else if(params["AlgoType"] == "genetic") {
+            vector <string> geneticParams = splitString(params["AlgoParams"]);
+            int crossoverStrat = stoi(geneticParams.at(0)); // TODO: This should be throw-catched
+            // validate mutation
+            // for termination validate, then split into string-int map, then validate again
+            // map<string, int> termStratParsed
+            // vector<string> outcome = runGeneticAlgorithm(importedGraph, quietMode, crossoverStrat, mutationStrat, termStratParsed.key, termStratParsed.value);
+            // ifPrint(outcome);
+            // ifAppend(outcome);
+            // return;
+        }
     }
 }
 #endif //MHE_COMMANDS_H
