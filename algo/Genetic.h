@@ -199,9 +199,6 @@ private:
                     offspring.push_back(offspring1);
                     offspring.push_back(offspring2);
                 }
-//                else {
-//                    // Handle invalid crossover method (optional)
-//                }
             }
         }
 
@@ -229,8 +226,6 @@ private:
                             mutatedPopulation[i][j] = mutatedPopulation[i][j + 1];
                             mutatedPopulation[i][j + 1] = temp;
                         }
-                    } else {
-                        // Handle invalid mutation method (optional)
                     }
                 }
             }

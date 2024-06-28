@@ -120,12 +120,12 @@ namespace mhe {
         // Write horizontal
         oss << "\n  | ";
 
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i <= SIZE; i++) {
             oss << i << "   ";
             if(i < 10) oss << " ";
         }
         oss << "\n";
-        for (int i = 0; i < SIZE + 1; i++) {
+        for (int i = 0; i <= SIZE + 1; i++) {
             oss << "----";
             if(i % 2 == 0) oss << "-";
             if(i > 12) oss << "-";
@@ -134,7 +134,7 @@ namespace mhe {
         oss << "\n";
 
         // Write vertical
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i <= SIZE; i++) {
             if (i < 10) {
                 oss << i << " | ";
             } else {

@@ -44,7 +44,7 @@ public:
                         std::vector<int> neighbor(currentAssignment);
                         neighbor[i] = j;
 
-                        // Check if neighbor is not in the taboo list
+                        // Check if neighbor is not in the tabu list
                         bool isTabu = false;
                         if (currentTabuSize > 0) {
                             for (const auto &tabuEntry: tabuList) {
@@ -72,7 +72,7 @@ public:
                 currentAssignment = bestNeighbor;
                 bestCost = bestNeighborCost;
 
-                // Update taboo list (remove oldest entry if full)
+                // Update tabu list (remove oldest entry if full)
                 if (currentTabuSize > 0) {
                     if (tabuList.size() == currentTabuSize) {
                         tabuList.erase(tabuList.begin());
