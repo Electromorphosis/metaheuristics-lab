@@ -34,7 +34,7 @@ public:
         std::cout << "CSV file exported successfully: " << filename << std::endl;
     }
 
-    // TODO: exporter to DOT is WIP as it's not a core functionality for the class project
+    // TODO: exporter to DOT is WIP as it's not a core functionality for the classroom project
 //    static void exportAdjMatrixToDOT(const std::vector<std::vector<int>>& inputAdjacencyMatrix, const std::string& filepath) {
 //        if (filepath.empty() || filepath == "/") {
 //            std::cerr << "Filepath provided is not valid!";
