@@ -9,15 +9,50 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <regex>
+#include <filesystem>
+#include <sstream>
 
 #include "help.h"
+#include "namespace.h"
+#include "Exporter.h"
 
 namespace commands {
     using std::string;
     using std::cout;
     using std::cerr;
     using namespace help;
+    using namespace mhe;
+    namespace fs = std::filesystem;
 
+//    bool isValidFilePath(const string& path) {
+//        // (Works for Linux only)
+//        std::regex pathRegex("^/([a-zA-Z0-9_\\-]+/?)+$");
+//        if (!std::regex_match(path, pathRegex)) {
+//            return false; // Path format is invalid
+//        }
+//        // Extract the directory path without the filename
+//        fs::path dirPath = fs::path(path).parent_path();
+//        return fs::exists(dirPath) && fs::is_directory(dirPath);
+//    }
+// TODO: Fix or dump
+
+    std::vector<std::string> splitString(const std::string& input) {
+        // Split comma-separated parameters into value vector
+        std::vector<std::string> result;
+        std::istringstream iss(input);
+        std::string token;
+
+        while (std::getline(iss, token, ',')) {
+            if (token.empty()) {
+                result.push_back("default");
+            } else {
+                result.push_back(token);
+            }
+        }
+
+        return result;
+    }
 
     std::map<string, string> parseRunParams(int argc, char* argv[]) {
         // Check if help is needed first
@@ -93,7 +128,7 @@ namespace commands {
             return {};
         }
 
-        return params;
+        return taggedParams;
     }
 
     std::map<string, string> parseGenParams(int argc, char* argv[]) {
@@ -161,7 +196,7 @@ namespace commands {
             std::cerr << "Error: Missing required parameters." << std::endl;
             return {};
         }
-        return params;
+        return taggedParams;
     }
     // With enough tinkering I could probably refactor those two into one method, but as of now seems like too much hassle...
 
@@ -172,6 +207,73 @@ namespace commands {
 
     void generate(int argc, char* argv[]) {
         std::map<string, string> params = parseGenParams(argc, argv);
+
+//        // Check if output filepath is set up correctly
+//        if (!isValidFilePath(params["Output"])) {
+//            std::cerr << "Filepath provided is not valid!";
+//            return;
+//        }
+
+        // Handle node number param
+        int nodes = 10;
+        if(!(params["Nodes"] == "10")) {
+            try {
+                nodes = std::stoi(params["Nodes"]);
+            } catch (const std::invalid_argument &ia) {
+                std::cerr << "Invalid argument - number of nodes must be a numerical value, got: '" << params["Nodes"]
+                          << "' as integer.\n";
+                return;
+            } catch (const std::out_of_range oor) {
+                std::cerr << "Out of range error for number of nodes: " << oor.what() << "\n";
+                return;
+            }
+            nodes--; // Convert from "human" value to range counted from zero
+            if (nodes < 1) {
+                std::cerr << "There must be at least two nodes to make a graph!";
+                return;
+            }
+        }
+
+        // Handle range param
+        int minimumWeight = 0;
+        int maximumWeight = 0;
+        std::vector<string> minMaxRange = splitString(params["Weights"]);
+        try {
+            minimumWeight = std::stoi(minMaxRange.at(0));
+        } catch (const std::invalid_argument &ia) {
+            std::cerr << "Invalid argument - minimum weight must be a numerical value, got: '" << minMaxRange.at(0)
+                      << "' as integer.\n";
+            return;
+        } catch (const std::out_of_range oor) {
+            std::cerr << "Out of range error for minimum weight: " << oor.what() << "\n";
+            return;
+        }
+        if (minimumWeight < 1) {
+            std::cerr << "Minimum weight must be a positive, non-zero number!";
+            return;
+        }
+
+        try {
+            maximumWeight = std::stoi(minMaxRange.at(1));
+        } catch (const std::invalid_argument &ia) {
+            std::cerr << "Invalid argument - maximum weight must be a numerical value, got: '" << minMaxRange.at(1)
+                      << "' as integer.\n";
+            return;
+        } catch (const std::out_of_range oor) {
+            std::cerr << "Out of range error for maximum weight: " << oor.what() << "\n";
+            return;
+        }
+        if (maximumWeight < 1) {
+            std::cerr << "Maximum weight must be a positive, non-zero number!";
+            return;
+        } else if (maximumWeight < minimumWeight) {
+            std::cerr << "Maximum weight must be smaller than the minimal weight!";
+            return;
+        }
+
+        std::vector<std::vector<int>> randomGraph = generateRandomGraphAdjacencyMatrix(nodes, minimumWeight, maximumWeight);
+        printAdjMatrix(randomGraph);
+        Exporter::exportToCSV(randomGraph, params["Output"]);
     }
 }
 #endif //MHE_COMMANDS_H

@@ -15,25 +15,25 @@ namespace mhe {
     using std::cout;
     using std::vector;
     const int NULL_WEIGHT = 0; // Value representing no edge
-    int MIN_WEIGHT = 1; // Minimum weight of the edges
-    int MAX_WEIGHT = 9; // Maximum weight of the edges
-    int SIZE = 9; // size of the matrix; sizes above 9 might not be fully well presented by visualizers
+//    int MIN_WEIGHT = 1; // Minimum weight of the edges
+//    int MAX_WEIGHT = 9; // Maximum weight of the edges
+//    int SIZE = 9; // size of the matrix; sizes above 9 might not be fully well presented by visualizers
     std::random_device rd;
     std::mt19937 mt(rd());
 
 
-    int getRandomWeight() {
-        std::uniform_int_distribution<int> distr(MIN_WEIGHT, MAX_WEIGHT);
+    int getRandomWeight(int min, int max) {
+        std::uniform_int_distribution<int> distr(min, max);
         return distr(mt);
     }
 
-    std::vector<std::vector<int>> generateRandomGraphAdjacencyMatrix() {
-        std::cout << "\nGenerating graph with parameters:\n\tSize: " << SIZE << "\n\tMinWeight: " << MIN_WEIGHT << "\n\tMaxWeight: " << MAX_WEIGHT << "\n\n";
-        std::vector<std::vector<int>> matrix(SIZE, std::vector<int>(SIZE, NULL_WEIGHT));
+    std::vector<std::vector<int>> generateRandomGraphAdjacencyMatrix(int nodes, int minimum, int maximum) {
+        std::cout << "\nGenerating graph with parameters:\n\tSize: " << nodes << "\n\tMinWeight: " << minimum << "\n\tMaxWeight: " << maximum << "\n\n";
+        std::vector<std::vector<int>> matrix(nodes, std::vector<int>(nodes, NULL_WEIGHT));
 
-        for (int i = 0; i < SIZE; ++i) {
-            for (int j = i + 1; j < SIZE; ++j) {
-                int weight = getRandomWeight();
+        for (int i = 0; i < nodes; ++i) {
+            for (int j = i + 1; j < nodes; ++j) {
+                int weight = getRandomWeight(minimum, maximum);
                 matrix[i][j] = weight;
                 matrix[j][i] = weight; // Ensure the matrix is symmetrical
             }
@@ -64,6 +64,7 @@ namespace mhe {
             }
             std::cout << std::endl;
         }
+        std::cout << std::endl;
     }
 
     // Function to print the adjacency matrix
@@ -89,12 +90,12 @@ namespace mhe {
         // Write horizontal
         std::cout << "\n  | ";
 
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < adjMatrix.size(); i++) {
             std::cout << i << "   ";
             if(i < 10) std::cout << " ";
         }
         std::cout << "\n";
-        for (int i = 0; i < SIZE+1; i++) {
+        for (int i = 0; i < adjMatrix.size()+1; i++) {
             std::cout << "----";
             if(i%2 == 0) std::cout << "-";
             if(i > 12) std::cout << "-";
@@ -103,7 +104,7 @@ namespace mhe {
         std::cout << "\n";
 
         // Write vertical
-        for (int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < adjMatrix.size(); i++) {
             if (i < 10) {
                 std::cout << i << " | ";
             } else {
@@ -120,12 +121,12 @@ namespace mhe {
         // Write horizontal
         oss << "\n  | ";
 
-        for (int i = 0; i <= SIZE; i++) {
+        for (int i = 0; i <= adjMatrix.size(); i++) {
             oss << i << "   ";
             if(i < 10) oss << " ";
         }
         oss << "\n";
-        for (int i = 0; i <= SIZE + 1; i++) {
+        for (int i = 0; i <= adjMatrix.size() + 1; i++) {
             oss << "----";
             if(i % 2 == 0) oss << "-";
             if(i > 12) oss << "-";
@@ -134,7 +135,7 @@ namespace mhe {
         oss << "\n";
 
         // Write vertical
-        for (int i = 0; i <= SIZE; i++) {
+        for (int i = 0; i <= adjMatrix.size(); i++) {
             if (i < 10) {
                 oss << i << " | ";
             } else {

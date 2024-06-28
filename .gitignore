@@ -3,3 +3,4 @@ reports/*.md
 graphs
 .idea
 MHE*
+*.csv
