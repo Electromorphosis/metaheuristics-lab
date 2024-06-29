@@ -12,49 +12,85 @@
 
 class Climbing : public Algo {
 public:
-    static std::vector<int> calculate(const std::vector<std::vector<int>>& graph, const int k) {
-        std::vector<int> check = checkIfValidInput(graph, k);
-        if (check.at(0) == -1) {
-            std::cerr << "Input is invalid!";
-            return check;
-        }
-
-        // TODO: Might want check other strategies for first assignment ?
-        std::vector<int> currentAssignment(randomAssign(graph, k));
-//        mhe::printAssignment(currentAssignment);
-
+    static std::vector<std::string> calculate(const std::vector<std::vector<int>>& graph, const int k, bool quietMode, bool runValidation, std::string neighStrat, std::string termStrat, int termValue) {
         int minCost = std::numeric_limits<int>::max();
-        std::cout << "minCost = " << minCost;
         bool improvementFound = true;
 
-        while (improvementFound) {
-            improvementFound = false;
+        // TODO: Might want check other strategies for first assignment ?
+        // Initialize first assignment randomly
+        std::vector<int> currentAssignment = randomAssign(graph, k);
 
-            // Explore all neighbors and find the one with the minimal cost
-            for (int i = 0; i < graph.size(); ++i) {
-                for (int j = 0; j < k; ++j) {
-                    if (currentAssignment[i] != j) {
-                        // Create a copy of the current assignment
-                        std::vector<int> neighbor(currentAssignment);
-                        neighbor[i] = j;
+        if (!quietMode) {
+            std::cout << "Initial minCost = infinite\n";
+        }
 
-                        int neighborCost = getAssignmentValue(graph, neighbor);
-                        std::cout << "\n" << "neighbour cost = " << neighborCost;
-                        if (neighborCost < minCost && isValidAssignment(neighbor, k)) {
-                            currentAssignment = neighbor;
-                            std::cout << "\n New best found!";
-                            mhe::printAssignment(currentAssignment);
-                            minCost = neighborCost;
-                            improvementFound = true;
-                            break; // Early termination if better neighbor found
-                         }
+        if(termStrat == "absolute") {
+            for(int iterations = 0; iterations < termValue; iterations++) {
+                currentAssignment = getBestNeighbour(graph, currentAssignment, k, neighStrat, quietMode);
+                if(!quietMode) {
+                    std::cout << "Iteration: " << iterations << std::endl;
+                }
+            }
+        } else if(termStrat == "stucked") {
+            int stuckedCount = 0;
+            int iterations = 0;
+            while(stuckedCount < termValue) {
+                auto oldAssignment = currentAssignment;
+                currentAssignment = getBestNeighbour(graph, currentAssignment, k, neighStrat, quietMode);
+                if(std::equal(oldAssignment.begin(), oldAssignment.end(),currentAssignment.begin(), currentAssignment.end())) {
+                    stuckedCount++;
+                    if(!quietMode) {
+                        std::cout << "Stucked count: " << stuckedCount << std::endl;
                     }
                 }
+                if(!quietMode) {
+                    std::cout << "Iterations: " << iterations << std::endl;
+                }
+                iterations++;
             }
         }
 
-        return currentAssignment;
+        std::vector<std::string> outcome;
+        outcome.push_back(Algo::vectorToString(currentAssignment));
+        outcome.push_back(std::to_string(getAssignmentValue(graph, currentAssignment)));
+        return outcome;
     }
+
+static std::vector<int> getBestNeighbour(const std::vector<std::vector<int>>& graph, const std::vector<int>& initialAssignment, const int k, std::string neighStrat, bool quietMode) {
+    if(neighStrat == "modify") {
+    // TODO Try assigning one node to any other partition
+    } else if(neighStrat == "flip") {
+        for (int i = 0; i < initialAssignment.size(); i++) {
+            std::vector<int> copyAssignment = initialAssignment;
+            copyAssignment.at(i) += 1;
+            if(copyAssignment.at(i) > k) continue;
+            if(isNewAssignmentBetter(graph, initialAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
+                if(!quietMode) {
+                    std::cout << "Better assignment found!" << std::endl;
+                    std::cout << Algo::vectorToString(copyAssignment) << " Value = " << std::to_string(getAssignmentValue(graph, copyAssignment)) << std::endl;
+                }
+                return copyAssignment;
+            }
+
+            copyAssignment.at(i) -= 2;
+            if(copyAssignment.at(i) < 0) continue;
+            if(isNewAssignmentBetter(graph, initialAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
+                return copyAssignment;
+            }
+        }
+        // Decrement/increment one node by one index of partition
+    } else if(neighStrat == "swap") {
+        // Change position between two nodes
+    }
+
+    return initialAssignment;
+}
+
+static bool isNewAssignmentBetter(const std::vector<std::vector<int>>& graph, const std::vector<int> oldAssignment, const std::vector<int> newAssignment) {
+    int oldValue = getAssignmentValue(graph, oldAssignment);
+    int newValue = getAssignmentValue(graph, newAssignment);
+    return newValue > oldValue;
+}
 
 };
 

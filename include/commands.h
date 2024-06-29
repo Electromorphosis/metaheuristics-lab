@@ -19,6 +19,7 @@
 #include "Exporter.h"
 #include "Importer.h"
 #include "../algo/BruteForce.h"
+#include "../algo/Climbing.h"
 
 namespace commands {
     using std::string;
@@ -265,6 +266,10 @@ namespace commands {
         return BruteForce::calculate(graph, k, quietMode, runValidation);
     }
 
+    vector<string> runClimbingAlgorithm(vector<vector<int>> graph, int k, bool quietMode, bool runValidation, string neighStrat, string termStrat, int termValue) {
+        return Climbing::calculate(graph, k, quietMode, runValidation, neighStrat, termStrat, termValue);
+    }
+
     void generate(int argc, char* argv[]) {
         std::map<string, string> params = parseGenParams(argc, argv);
 
@@ -390,7 +395,7 @@ namespace commands {
             cerr << "[ERROR] There can' be more partitions than nodes in the graph!\n";
             return;
         } else {
-            coutIf(quietMode, "[INFO] There is a valid number of partitions in the input.");
+            coutIf(quietMode, "[INFO] There is a valid number of partitions in the input.\n");
         }
 
         if(!allNonNegative(importedGraph)) {
@@ -423,16 +428,23 @@ namespace commands {
             }
             return;
         } else if(params["AlgoType"] == "climbing") {
+            coutIf(quietMode, "\nSTARTING CLIMBING ALGORITHM!\n");
             vector <string> climbingParams = splitString(params["AlgoParams"]);
             string neighStrategy = climbingParams.at(0);
-            // Validate neighStrat val
-            string terminationStrategy = climbingParams.at(1);
-            // Validate
-            // split into map<string, int> termStratParsed
-            // vector<string> outcome = runClimbingAlgorithm(importedGraph, quietMode, neighStrat, termStratParsed.key, termStratParsed.value);
-            // ifPrint(outcome);
-            // ifAppend(outcome);
-            // return;
+            // TODO: Validate neighStrat val
+            // ^ optional, for now assume it's proper
+            // ^ same as above
+            std::pair<string, int> termStrat = Algo::parseKeyValue(climbingParams.at(1));
+            if(!quietMode) {
+                cout << "Neighbour strategy: " << neighStrategy << "\n";
+                cout << "Termination strategy: " << climbingParams.at(1) << "\n";
+            }
+            vector<string> outcome = runClimbingAlgorithm(importedGraph, k, quietMode, validation, neighStrategy, termStrat.first, termStrat.second);
+            coutIf(quietMode, "The climbing algorithm output is: " + Algo::vectorToString(outcome) + "\n");
+            if(outputToFile) {
+                Exporter::writeNewline(Algo::vectorToString(outcome), filename);
+            }
+            return;
         } else if(params["AlgoType"] == "genetic") {
             vector <string> geneticParams = splitString(params["AlgoParams"]);
             int crossoverStrat = stoi(geneticParams.at(0)); // TODO: This should be throw-catched

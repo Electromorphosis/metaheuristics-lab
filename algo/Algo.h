@@ -113,6 +113,27 @@ public:
         }
         return oss.str();
     }
+
+    static std::pair<std::string, int> parseKeyValue(const std::string& input) {
+        // Find the position of '='
+        size_t pos = input.find('=');
+        if (pos == std::string::npos) {
+            throw std::invalid_argument("Invalid input format. '=' not found.");
+        }
+
+        // Extract key and value
+        std::string key = input.substr(0, pos);
+        std::string valueStr = input.substr(pos + 1);
+
+        // Convert value to integer
+        int value;
+        std::istringstream iss(valueStr);
+        if (!(iss >> value)) {
+            throw std::invalid_argument("Failed to convert value to integer.");
+        }
+
+        return {key, value};
+    }
 };
 
 
