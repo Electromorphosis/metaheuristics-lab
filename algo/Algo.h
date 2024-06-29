@@ -56,6 +56,63 @@ public:
 
         return nodeAssginment;
     }
+
+    // Function to compute factorial
+    static unsigned long long factorial(int n) {
+        unsigned long long result = 1;
+        for (int i = 1; i <= n; ++i) {
+            result *= i;
+        }
+        return result;
+    }
+
+// Function to compute Stirling numbers of the second kind - not 100% sure if it's correct though...
+    static unsigned long long stirlingNumber(int n, int k) {
+        std::vector<std::vector<unsigned long long>> dp(n + 1, std::vector<unsigned long long>(k + 1, 0));
+        dp[0][0] = 1;
+
+        for (int i = 1; i <= n; ++i) {
+            for (int j = 1; j <= k; ++j) {
+                dp[i][j] = j * dp[i - 1][j] + dp[i - 1][j - 1];
+            }
+        }
+
+        return dp[n][k];
+    }
+
+// Function to compute the total number of ways to partition n nodes into k partitions
+    static unsigned long long partitionWays(int n, int k) {
+        if (k == 0 || k > n) {
+            return 0; // No way to partition if k is 0 or greater than n
+        }
+
+        unsigned long long stirling = stirlingNumber(n, k);
+        unsigned long long permutations = factorial(k);
+
+        return permutations * stirling;
+    }
+
+    static std::string vectorToString(const std::vector<int>& vec) {
+        std::ostringstream oss;
+        for (size_t i = 0; i < vec.size(); ++i) {
+            if (i != 0) {
+                oss << ", ";
+            }
+            oss << vec[i];
+        }
+        return oss.str();
+    }
+
+    static std::string vectorToString(const std::vector<std::string>& vec) {
+        std::ostringstream oss;
+        for (size_t i = 0; i < vec.size(); ++i) {
+            if (i != 0) {
+                oss << "; ";
+            }
+            oss << vec[i];
+        }
+        return oss.str();
+    }
 };
 
 

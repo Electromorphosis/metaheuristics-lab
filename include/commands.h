@@ -12,10 +12,13 @@
 #include <regex>
 #include <filesystem>
 #include <sstream>
+#include <algorithm>
 
 #include "help.h"
 #include "namespace.h"
 #include "Exporter.h"
+#include "Importer.h"
+#include "../algo/BruteForce.h"
 
 namespace commands {
     using std::string;
@@ -50,6 +53,47 @@ namespace commands {
         return fs::exists(filePath) && fs::is_regular_file(filePath);
     }
 
+    bool isValidMatrixSize(const vector<vector<int>> testedMatrix) {
+        size_t matrixSize = testedMatrix.size();
+        if (matrixSize == 0) {
+            cerr << "Matrix is empty!\n";
+            return false;
+        }
+
+        return std::all_of(testedMatrix.begin(), testedMatrix.end(), [matrixSize](const std::vector<int>& row) {
+            return row.size() == matrixSize;
+        });
+    }
+
+    bool isMatrixSymmetrical(const std::vector<std::vector<int>>& testedMatrix) {
+        // Check if the matrix is square - probably redundant, but better safe than sorry
+        size_t numRows = testedMatrix.size();
+        size_t numCols = testedMatrix[0].size();
+        if (numRows != numCols) return false;
+
+        // Check symmetry and diagonal zeros
+        for (size_t i = 0; i < numRows; ++i) {
+            for (size_t j = 0; j < numCols; ++j) {
+                if (i == j && testedMatrix[i][j] != 0) {
+                    return false; // Diagonal elements must be zero
+                }
+                if (testedMatrix[i][j] != testedMatrix[j][i]) {
+                    return false; // Symmetry condition
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool allNonNegative(const std::vector<std::vector<int>>& matrix) {
+        return std::all_of(matrix.begin(), matrix.end(), [](const std::vector<int>& row) {
+            return std::all_of(row.begin(), row.end(), [](int value) {
+                return value >= 0;
+            });
+        });
+    }
+
     std::vector<std::string> splitString(const std::string& input) {
         // Split comma-separated parameters into value vector
         std::vector<std::string> result;
@@ -81,6 +125,7 @@ namespace commands {
                 {"-t", "None"}, // Algo type, required, needs value
                 {"-p", "None"}, // Algo params, required, needs value
                 {"-o", "false"}, // Output, optional, needs value
+                {"-k", "2"}, // Number of partitions, optional, default: 2
                 {"-v", "false"}, // Validation, optional, no value, default: false
                 {"-q", "false"} // Quiet mode, optional, no value, default: false
         };
@@ -95,7 +140,7 @@ namespace commands {
         for (int i = 2; i < argc; i++) {
             std::string arg = argv[i];
             // Check if argument with value has one
-            if (arg == "-i" || arg == "-t" || arg == "-p" || arg == "-o") {
+            if (arg == "-i" || arg == "-t" || arg == "-p" || arg == "-o" || arg == "-k") {
                 if (i + 1 >= argc) {
                     std::cerr << "Error: Missing value after " << arg << std::endl;
                     return {};
@@ -123,7 +168,8 @@ namespace commands {
                 {"-p", "AlgoParams"},
                 {"-o", "Output"},
                 {"-v", "Validation"},
-                {"-q", "Quiet"}
+                {"-q", "Quiet"},
+                {"-k", "Partitions"}
         };
 
         for (const auto& [key, value] : params) {
@@ -215,6 +261,10 @@ namespace commands {
     }
     // With enough tinkering I could probably refactor those two into one method, but as of now seems like too much hassle...
 
+    vector<string> runFullReview(vector<vector<int>> graph, int k, bool quietMode, bool runValidation) {
+        return BruteForce::calculate(graph, k, quietMode, runValidation);
+    }
+
     void generate(int argc, char* argv[]) {
         std::map<string, string> params = parseGenParams(argc, argv);
 
@@ -258,8 +308,8 @@ namespace commands {
             std::cerr << "Out of range error for minimum weight: " << oor.what() << "\n";
             return;
         }
-        if (minimumWeight < 1) {
-            std::cerr << "Minimum weight must be a positive, non-zero number!";
+        if (minimumWeight < 0) {
+            std::cerr << "Minimum weight must be a positive number or zero!";
             return;
         }
 
@@ -296,24 +346,82 @@ namespace commands {
         if(params["Output"] == "true") outputToFile = true; // actually this too, bc similarly I want to append some data to the output file all along
         if(params["Validation"] == "true") validation = true; // this should be also added for completion... more printing ahead...!
 
-        coutIf(quietMode, "Parsing completed. Input validation starts...\n\n");
+        coutIf(quietMode, "[INFO] Parsing completed. Input validation starts...\n");
+        int k = 2;
+        if(!(params["Partitions"] == "2")) {
+            try {
+                k = std::stoi(params["Partitions"]);
+            } catch (const std::invalid_argument &ia) {
+                std::cerr << "Invalid argument - number of partitions must be a numerical value, got: '" << params["Partitions"]
+                          << "' as integer.\n";
+                return;
+            } catch (const std::out_of_range oor) {
+                std::cerr << "Out of range error for number of partitions: " << oor.what() << "\n";
+                return;
+            }
+            k--; // Convert from "human" value to range counted from zero
+            if (k < 1) {
+                std::cerr << "There must be at least two partitions to make a calculation!";
+                return;
+            }
+        }
 
         if(!isExistingFile(params["Input"])) {
             std::cerr << "[ERROR] Provided input file does not exist! Exiting...\n"; // Ofc quiet mode is not related to error logging...
             return;
         }
 
-        // Import input file
-        // Validate if correct graph
-        // (Optional) Print basic graph stats
+        vector<vector<int>> importedGraph = Importer::readCSVFileTo2DVector(params["Input"]);
+        if(!isValidMatrixSize(importedGraph)) {
+            cerr << "[ERROR] The matrix imported is invalid!";
+            return;
+        } else {
+            coutIf(quietMode, "[INFO] The matrix imported is of a valid size!\n");
+        }
 
+        if(!isMatrixSymmetrical(importedGraph)) {
+            cerr << "[ERROR] The matrix is not symmetrical!";
+            return;
+        } else {
+            coutIf(quietMode, "[INFO] The matrix imported is symmetrical & have a valid diagonal values.\n");
+        }
 
+        if(importedGraph.size() < k) {
+            cerr << "[ERROR] There can' be more partitions than nodes in the graph!\n";
+            return;
+        } else {
+            coutIf(quietMode, "[INFO] There is a valid number of partitions in the input.");
+        }
+
+        if(!allNonNegative(importedGraph)) {
+            cerr << "[WARN] The current version of the program is not optimized for negative graph weights! Unexpected behavior might occur.\n";
+        }
+
+        // TODO (Optional) Print basic graph stats
+
+        string filename;
+        if(outputToFile) {
+            // If set to true, use default filename
+            filename = Exporter::generateNewReportFilename();
+            Exporter::createNewFile(filename);
+        }
+        if(params["Output"] != "false") {
+            // If set to value other than false, use custom filename
+            filename = params["Output"];
+            outputToFile = true;
+        }
 
         if(params["AlgoType"] == "full_review") {
-            // vector<string> outcome = runFullReview(importedGraph, quietMode);
-            // ifPrint(outcome);
-            // ifAppend(outcome);
-            // return;
+            if(!quietMode) {
+                cout << "\nSTARTING FULL REVIEW ALGORITHM!\n";
+                cout << "There are (" << Algo::partitionWays(importedGraph.size(), k) << ") possible assignments, based on the given number of nodes (" << importedGraph.size() << ") and required partitions (" << k << ").\n";
+            }
+            vector<string> outcomeFullReview = runFullReview(importedGraph, k, quietMode, validation);
+            coutIf(quietMode, "The full review output is: " + Algo::vectorToString(outcomeFullReview) + "\n");
+            if(outputToFile) {
+                Exporter::writeNewline(Algo::vectorToString(outcomeFullReview), filename);
+            }
+            return;
         } else if(params["AlgoType"] == "climbing") {
             vector <string> climbingParams = splitString(params["AlgoParams"]);
             string neighStrategy = climbingParams.at(0);

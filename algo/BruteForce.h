@@ -7,19 +7,13 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <string>
 #include "Algo.h"
 #include "../include/namespace.h"
 
 class BruteForce : public Algo{
 public:
-    static std::vector<int> calculate(const std::vector<std::vector<int>>& graph,const int k) {
-        std::vector<int> check = checkIfValidInput(graph, k);
-        if (check.at(0) == -1) {
-            return check;
-        }
-        int numberOfPossibleAssignments = pow(k, static_cast<int>(graph.size()))-k; // bigger k because arithmetic number of partitions, not the index
-        std::cout << "\nBrute Force (Full Review) algorithm starts...\nThere are (" << k+1 << "^" << graph.size() << "-k=)" << numberOfPossibleAssignments << " possible assignments to review. Take your time :-).";
-
+    static std::vector<std::string> calculate(const std::vector<std::vector<int>>& graph,const int k, bool quietMode, bool runValidation) {
         std::vector<std::vector<int>> allAssignments;
         std::vector<int> bestAssignment(graph.size(), 0); // initalize with zeroes for the first assignments
         for(int i=0; i <= k; i++) {
@@ -28,9 +22,16 @@ public:
         }
 
         generateAllAssignments(graph.size(), k, 0, bestAssignment, allAssignments);
+        if(!quietMode) {
+//            std::cout << "There are " << allAssignments.size() << " possible assignemnts.\n";
+            // This is redundant, but confirms that my stirling's implementation <<might> be correct.
+        }
 
-        bestAssignment = findBestAssignment(graph, allAssignments);
-        return bestAssignment;
+        bestAssignment = findBestAssignment(graph, allAssignments, quietMode);
+        std::vector<std::string> outcome;
+        outcome.push_back(Algo::vectorToString(bestAssignment));
+        outcome.push_back(std::to_string(getAssignmentValue(graph, bestAssignment)));
+        return outcome;
     }
 
     static void generateAllAssignments(int n, int k, int idx, std::vector<int>& currentAssignment, std::vector<std::vector<int>>& result) {
@@ -60,21 +61,28 @@ public:
     }
 
     // Method to review all assignments and choose the best one
-    static std::vector<int> findBestAssignment(const std::vector<std::vector<int>>& graph, const std::vector<std::vector<int>>& assignments) {
+    static std::vector<int> findBestAssignment(const std::vector<std::vector<int>>& graph, const std::vector<std::vector<int>>& assignments, bool quietMode) {
+        quietMode = true; // I could intro 'verbose' param, but for now, full logs is too much.
         int minCost = std::numeric_limits<int>::max();
         std::vector<int> bestAssignment;
 
         for (const auto& assignment : assignments) {
             int currentCost = getAssignmentValue(graph, assignment);
-            std::cout << "\nFor assignment:";
-            mhe::printAssignment(assignment, false, false);
-            std::cout << " the cost value is: " << currentCost;
+            if(!quietMode) {
+                std::cout << "\nFor assignment:";
+                mhe::printAssignment(assignment, false, false);
+                std::cout << " the cost value is: " << currentCost;
+            }
             if (currentCost < minCost) {
-                std::cout << " which is LESS than current minimum!";
+                if(!quietMode) {
+//                    std::cout << " which is LESS than current minimum!";
+                }
                 minCost = currentCost;
                 bestAssignment = assignment;
             } else {
-                std::cout << " which is MORE (or the same) than current minimum...";
+                if(!quietMode) {
+//                    std::cout << " which is more (or the same) than current minimum...";
+                }
             }
         }
 

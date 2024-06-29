@@ -79,5 +79,13 @@ public:
         file.close();
     }
 
+    static std::string generateNewReportFilename() {
+        std::time_t result = std::time(nullptr);
+        std::string timestamp = std::asctime(std::localtime(&result));
+        std::replace(timestamp.begin(), timestamp.end(), ' ', '-');
+        std::string filename = "reports/MHE_raport_pmechlinski_" + timestamp + ".md";
+        return filename;
+    }
+
 };
 #endif //MHE_EXPORTER_H

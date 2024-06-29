@@ -32,7 +32,8 @@ namespace help {
                            "\t-i [path] - required, path to input graph.\n"
                            "\t-t [algo_type] - required, type of algorithm to run.\n"
                            "\t-p [algo_params] - required, parameters passed to the algortihm given.\n"
-                           "\t-o [path] - optional, if added then the report from the run will be written to the text file. By default it will be only printed on stdout.\n"
+                           "\t-k [n] - optional, number of partitions that should be created. Default: 2.\n"
+                           "\t-o [path] - optional, if added then the report from the run will be written to the text file. By default it will be only printed on stdout. Set to 'true' to output in the default fileformat.\n"
                            "\t-v - optional, if added, then the full validation suite will be run for a given algorithm and input. Default: false\n"
                            "\t-q - optional, quiet mode, meaning no output will be printed in stdout.\n\n"
                            "Currently available algorithms options are:\n\n"
@@ -47,7 +48,11 @@ namespace help {
                            "Examples: you need to first enter the name of a given algorithm, then provide list of parameters as a comma separated values, e.g.:\n"
                            "\n\t'graph run -i graph.csv -t genetic -p 2,flip,epsilon=3' - runs genetic algorithm on a graph stored in graph.csv, using 2-point crossover, mutation type flip and termination when trans-generational improvement is less than 3.\n"
                            "\n\t'graph run -i graph.csv -t genetic -p ,swap,progress=1000' - runs genetic algorithm on a graph stored in graph.csv, using one-point (default) crossover, mutation type 'swap' and termination after 1000 generations.\n"
-                           "\n\t'graph run -i graph.csv -t genetic -p ,,epsilon=5' - runs genetic algorithm with default crossover (1-p) and mutation (bit-flip) types and stop after improvement is less than epsilon=5.\n\n";
+                           "\n\t'graph run -i graph.csv -t genetic -p ,,epsilon=5' - runs genetic algorithm with default crossover (1-p) and mutation (bit-flip) types and stop after improvement is less than epsilon=5.\n\n"
+                           "\n\nRun output format is a string with semicolons as a delimiter (commas are used as a second degree delimiter). The fields format is universal and as follows:\n"
+                           "\t[assignment string] - in a form of comma separated string of values\n"
+                           "\t[assignment value] - int value\n"
+                           "More/ validation [TBA]\n";
 
     string default_message = "Unknown command. Use 'help' for available options.\n";
 
