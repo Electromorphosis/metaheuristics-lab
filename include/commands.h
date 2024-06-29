@@ -156,6 +156,10 @@ namespace commands {
 
         // Check for missing required parameters
         bool all_required_found = true;
+        if(params["-p"] == "None" && params["-t"] == "full_review") {
+            params["-p"] = "Default";
+        }
+
         for (const auto& [key, value] : params) {
             if (value == "None") {
                 all_required_found = false;
@@ -364,7 +368,7 @@ namespace commands {
                 std::cerr << "Out of range error for number of partitions: " << oor.what() << "\n";
                 return;
             }
-            k--; // Convert from "human" value to range counted from zero
+
             if (k < 1) {
                 std::cerr << "There must be at least two partitions to make a calculation!";
                 return;
@@ -444,6 +448,7 @@ namespace commands {
             if(outputToFile) {
                 Exporter::writeNewline(Algo::vectorToString(outcome), filename);
             }
+            std::cout << k;
             return;
         } else if(params["AlgoType"] == "genetic") {
             vector <string> geneticParams = splitString(params["AlgoParams"]);

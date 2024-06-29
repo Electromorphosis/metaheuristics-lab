@@ -20,18 +20,23 @@ public:
     }
 
     static bool isValidAssignment(const std::vector<int>& vec, int k) {
-        // Create a boolean array to track presence of numbers from 0 to k
-        std::vector<bool> found(k + 1, false); // Initialize all entries as false
+        std::vector<int> count(k + 1, 0);
 
         // Mark numbers from vec that are within range 0 to k
         for (int num : vec) {
             if (num >= 0 && num <= k) {
-                found[num] = true;
+                count[num]++;
             }
         }
 
-        // Check if any number from 0 to k is found
-        return std::any_of(found.begin(), found.end(), [](bool val) { return val; });
+        // Check if all counts are at least 1
+        for (int i = 0; i <= k; ++i) {
+            if (count[i] == 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Wrapper to get cost value when I don't care about visualising all the middle steps, i.e. in algos that is.

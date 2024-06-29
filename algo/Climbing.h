@@ -57,39 +57,40 @@ public:
     }
 
 static std::vector<int> getBestNeighbour(const std::vector<std::vector<int>>& graph, const std::vector<int>& initialAssignment, const int k, std::string neighStrat, bool quietMode) {
+        auto currentAssignment = initialAssignment;
     if(neighStrat == "modify") {
     // TODO Try assigning one node to any other partition
     } else if(neighStrat == "flip") {
-        for (int i = 0; i < initialAssignment.size(); i++) {
-            std::vector<int> copyAssignment = initialAssignment;
+        for (int i = 0; i < currentAssignment.size(); i++) {
+            std::vector<int> copyAssignment = currentAssignment;
             copyAssignment.at(i) += 1;
-            if(copyAssignment.at(i) > k) continue;
-            if(isNewAssignmentBetter(graph, initialAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
+            if(copyAssignment.at(i) > k+1) continue;
+            if(isNewAssignmentBetter(graph, currentAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
                 if(!quietMode) {
                     std::cout << "Better assignment found!" << std::endl;
                     std::cout << Algo::vectorToString(copyAssignment) << " Value = " << std::to_string(getAssignmentValue(graph, copyAssignment)) << std::endl;
                 }
-                return copyAssignment;
+                currentAssignment = copyAssignment;
             }
 
             copyAssignment.at(i) -= 2;
             if(copyAssignment.at(i) < 0) continue;
-            if(isNewAssignmentBetter(graph, initialAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
-                return copyAssignment;
+            if(isNewAssignmentBetter(graph, currentAssignment, copyAssignment) && Algo::isValidAssignment(copyAssignment, k)) {
+                currentAssignment = copyAssignment;
             }
         }
         // Decrement/increment one node by one index of partition
     } else if(neighStrat == "swap") {
-        // Change position between two nodes
+        // TODO Change position between two nodes
     }
 
-    return initialAssignment;
+    return currentAssignment;
 }
 
 static bool isNewAssignmentBetter(const std::vector<std::vector<int>>& graph, const std::vector<int> oldAssignment, const std::vector<int> newAssignment) {
     int oldValue = getAssignmentValue(graph, oldAssignment);
     int newValue = getAssignmentValue(graph, newAssignment);
-    return newValue > oldValue;
+    return newValue < oldValue;
 }
 
 };
