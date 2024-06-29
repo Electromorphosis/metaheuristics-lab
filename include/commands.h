@@ -20,6 +20,7 @@
 #include "Importer.h"
 #include "../algo/BruteForce.h"
 #include "../algo/Climbing.h"
+#include "../algo/Genetic.h"
 
 namespace commands {
     using std::string;
@@ -266,12 +267,16 @@ namespace commands {
     }
     // With enough tinkering I could probably refactor those two into one method, but as of now seems like too much hassle...
 
-    vector<string> runFullReview(vector<vector<int>> graph, int k, bool quietMode, bool runValidation) {
+    vector<string> runFullReview(const vector<vector<int>>& graph, int k, bool quietMode, bool runValidation) {
         return BruteForce::calculate(graph, k, quietMode, runValidation);
     }
 
-    vector<string> runClimbingAlgorithm(vector<vector<int>> graph, int k, bool quietMode, bool runValidation, string neighStrat, string termStrat, int termValue) {
+    vector<string> runClimbingAlgorithm(const vector<vector<int>>& graph, int k, bool quietMode, bool runValidation, string neighStrat, string termStrat, int termValue) {
         return Climbing::calculate(graph, k, quietMode, runValidation, neighStrat, termStrat, termValue);
+    }
+
+    vector<string>runGeneticAlgorithm(const vector<vector<int>>& graph, int k, bool quietMode, bool runValidation, int crossingPoints, const string& mutationType, const string& terminationStrategy, int terminationValue) {
+        return Genetic::calculate(graph, k, quietMode, runValidation, crossingPoints, mutationType, terminationStrategy, terminationValue);
     }
 
     void generate(int argc, char* argv[]) {
@@ -448,18 +453,33 @@ namespace commands {
             if(outputToFile) {
                 Exporter::writeNewline(Algo::vectorToString(outcome), filename);
             }
-            std::cout << k;
             return;
         } else if(params["AlgoType"] == "genetic") {
+            coutIf(quietMode, "\nSTARTING GENETIC ALGORITHM!\n");
+            // TODO - BUG, default parameters doesnt work :C
+            cout << "test";
             vector <string> geneticParams = splitString(params["AlgoParams"]);
-            int crossoverStrat = stoi(geneticParams.at(0)); // TODO: This should be throw-catched
-            // validate mutation
-            // for termination validate, then split into string-int map, then validate again
-            // map<string, int> termStratParsed
-            // vector<string> outcome = runGeneticAlgorithm(importedGraph, quietMode, crossoverStrat, mutationStrat, termStratParsed.key, termStratParsed.value);
-            // ifPrint(outcome);
-            // ifAppend(outcome);
-            // return;
+            int crossoverPoints;
+            if(geneticParams.at(0).empty()) {
+                crossoverPoints = 1;
+            } else {
+                crossoverPoints = stoi(geneticParams.at(0)); // TODO: This should be throw-catched
+            }
+            // TODO validate params
+            string mutationStrat = geneticParams.at(1);
+            std::pair<string, int> termination = Algo::parseKeyValue(geneticParams.at(2));
+            if(!quietMode) {
+                cout << "Crossover: " << crossoverPoints << "\n";
+                cout << "Mutation: " << mutationStrat << "\n";
+                cout << "Termination strategy: " << termination.first << "\n";
+                cout << "Termination value: " << termination.second << "\n";
+            }
+            vector<string> outcome = runGeneticAlgorithm(importedGraph, k, quietMode, validation, crossoverPoints, mutationStrat, termination.first, termination.second);
+            coutIf(quietMode, "The genetic algorithm output is: " + Algo::vectorToString(outcome) + "\n");
+            if(outputToFile) {
+                Exporter::writeNewline(Algo::vectorToString(outcome), filename);
+            }
+            return;
         }
     }
 }

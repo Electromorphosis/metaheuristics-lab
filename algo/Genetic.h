@@ -12,70 +12,114 @@
 #include "Algo.h"
 #include "../include/namespace.h"
 
-class GeneticAlgorithm : public Algo {
+class Genetic : public Algo {
 public:
-//    enum EndingCondition {
-//        MAX_GEN_NUM,
-//        CONVERGE_BY_CONSTANT,
-//        TIME_CONSTRAINT
-//    };
-
-    enum Mutation {
-        BIT_FLIP,
-        SWAP
-    };
-
-//    enum Crossover {
-//        ONE_POINT,
-//        MULTI_POINT
-//    };
-
     // TODO: (very optional) Tournament selection can be implemented and added to it, enum for parentSelection
 
-    struct Parameters {
-        int populationSize; // Number of individuals in the population
-        int maxGenerations; // Maximum number of generations
-        double crossoverRate; // Probability of crossover between parents
-        double mutationRate; // Probability of mutation in an individual
-//        EndingCondition endingCondition;
-        Mutation mutationType;
-        int crossoverPoints;
-    };
-
-    static std::vector<int> calculate(const std::vector<std::vector<int>> &graph, int k, const Parameters &params) {
+    static std::vector<std::string> calculate(const std::vector<std::vector<int>> &graph, int k, bool quietMode, bool runValidation, int crossingPoints, const std::string& mutationType, const std::string& terminationStrategy, int termValue) {
         int n = graph.size();
-
+        int popSize = n * 3;
+        int numParents = popSize / 4;
         // Generate initial population
-        std::vector<std::vector<int>> population = generatePopulation(n, k, params.populationSize);
-
-        // Main loop for genetic algorithm
-        for (int generation = 0; generation < params.maxGenerations; ++generation) {
-            // Fitness evaluation
-            std::vector<int> fitnessValues(population.size());
-            for (int i = 0; i < population.size(); ++i) {
-                fitnessValues[i] = getAssignmentValue(graph, population[i]);
-            }
-
-            // Selection (choose parents for next generation)
-            std::vector<std::vector<int>> parents = selectParents(population, fitnessValues, params.populationSize);
-
-            // Crossover (generate offspring)
-            std::vector<std::vector<int>> offspring = crossover(parents, params.crossoverRate, params.crossoverPoints);
-
-            // Mutation (introduce random changes)
-            mutate(offspring, params.mutationRate, params.mutationType);
-
-            // Combine offspring with parents to form new population
-            population.insert(population.end(), offspring.begin(), offspring.end());
-
-            // TODO: Elitism (optional: keep best individuals from previous generation)
-
+        std::vector<std::vector<int>> population = generatePopulation(graph, n, k, popSize); // TODO parametrized population size
+        if(!quietMode) {
+//            std::cout << "Inital population:\n";
+            std::cout << "Inital population (fragment):\n";
+            mhe::printAdjMatrixRow(population, 0);
+            mhe::printAdjMatrixRow(population, 1);
+            mhe::printAdjMatrixRow(population, 2);
+            std::cout << "...\n";
+            mhe::printAdjMatrixRow(population, popSize-1);
         }
 
+        // Main loop for genetic algorithm
+        if(terminationStrategy == "progress") {
+            if(!quietMode) {
+                std::cout << "Absolute generations termination mode choosen (" << termValue <<" iterations).\n";
+            }
+            for(int iterations = 0; iterations < termValue; iterations++) {
+                // Fitness evaluation - evaluate assignment value for the whole population
+                std::vector<int> fitnessValues(popSize);
+                for (int i = 0; i < popSize; ++i) {
+                    fitnessValues[i] = getAssignmentValue(graph, population[i]);
+                }
+                if(!quietMode) {
+                    int sumValue = 0;
+                    for (int i = 0; i < popSize; ++i) {
+                        sumValue += fitnessValues[i];
+                    }
+                    double avgValue = static_cast<double>(sumValue) / static_cast<double>(popSize);
+                    std::cout << "Generation (" << iterations <<"), it's value is: " << avgValue << "\n";
+                }
+
+                // Selection (choose parents for next generation)
+                std::vector<std::vector<int>> parents = selectParents(population, fitnessValues, numParents);
+                // TODO Parent pop size could be diversified / parametrized
+                if(!quietMode) {
+                    std::cout << "\tParent selected:\n";
+                    for (std::vector<int> parent : parents) {
+                        std::cout << "\t" << Algo::vectorToString(parent) << " Val = " << Algo::getAssignmentValue(graph, parent) << "\n";
+                    }
+                }
+
+                // Crossover (generate offspring)
+                std::vector<std::vector<int>> offspring = crossover(parents, 0.5, crossingPoints);
+                // TODO Same as above for crossoverRate
+
+                // Mutation (introduce random changes)
+                mutate(offspring, 0.5, mutationType);
+                // TODO aand same for mutationRate
+
+               // Combine offspring with parents to form new population
+               population.insert(population.end(), offspring.begin(), offspring.end());
+
+               // TODO Here could elitism happened
+            }
+        } else if(terminationStrategy == "epsilon") {
+            if(!quietMode) {
+                std::cout << "Epsilon mode termination choosen (" << termValue <<" iterations).\n";
+            }
+            double epsilon = static_cast<double>(termValue)+1.0; // Default value to start the main loop
+            while(epsilon > termValue) {
+                // Fitness evaluation - evaluate assignment value for the whole population
+                std::vector<int> fitnessValues(popSize);
+                int oldSumValue = 0;
+                for (int i = 0; i < popSize; ++i) {
+                    fitnessValues[i] = getAssignmentValue(graph, population[i]);
+                    oldSumValue += fitnessValues[i];
+                }
+                double previousGenValue = static_cast<double>(oldSumValue) / static_cast<double>(popSize);
+
+                // Selection (choose parents for next generation)
+                std::vector<std::vector<int>> parents = selectParents(population, fitnessValues, numParents);
+                if(!quietMode) {
+                    std::cout << "\tParents selected:\n";
+                    for (std::vector<int> parent : parents) {
+                        std::cout << "\t" << Algo::vectorToString(parent) << " Val = " << Algo::getAssignmentValue(graph, parent) << "\n";                    }
+                }
+
+                // Crossover (generate offspring)
+                std::vector<std::vector<int>> offspring = crossover(parents, 0.5, crossingPoints);
+
+                // Mutation (introduce random changes)
+                mutate(offspring, 0.1, mutationType);
+
+                // Combine offspring with parents to form new population
+                population.insert(population.end(), offspring.begin(), offspring.end());
+
+                int newSumValue = 0;
+                for (int i = 0; i < popSize; ++i) {
+                    fitnessValues[i] = getAssignmentValue(graph, population[i]);
+                    newSumValue += fitnessValues[i];
+                }
+                double newGenValue = static_cast<double>(newSumValue) / static_cast<double>(popSize);
+                epsilon = oldSumValue - newGenValue;
+            }
+        }
         // Identify best individual from final population
         int bestIndex = 0;
         int bestCost = std::numeric_limits<int>::max();
-        for (int i = 0; i < population.size(); ++i) {
+        for (int i = 0; i < popSize; ++i) {
             int cost = getAssignmentValue(graph, population[i]);
             if (cost < bestCost) {
                 bestIndex = i;
@@ -83,30 +127,19 @@ public:
             }
         }
 
-        return population[bestIndex];
+        std::vector<std::string> outcome;
+        outcome.push_back(Algo::vectorToString(population[bestIndex]));
+        outcome.push_back(std::to_string(getAssignmentValue(graph, population[bestIndex])));
+        return outcome;
     }
 
-private:
-    static std::vector<std::vector<int>> generatePopulation(int n, int k, int populationSize) {
+    static std::vector<std::vector<int>> generatePopulation(const std::vector<std::vector<int>>& graph, int n, int k, int populationSize) {
         // This implementation provides at least one node in each partition - please note that:
         // TODO: There might be more different approaches for creating random start pop. with good qualities, such as variability
         // (for small k and big n this method may favor first partition, which might skew variability!!
         std::vector<std::vector<int>> population(populationSize, std::vector<int>(n, 0)); // Initialize empty population
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(0, k - 1);
-
-        for (int i = 0; i < populationSize; ++i) {
-            // Ensure each partition has at least one node
-            std::vector<bool> assigned(k, false); // Use vector with size k
-            for (int j = 0; j < n; ++j) {
-                int partition;
-                do {
-                    partition = dis(gen); // Randomly choose a partition
-                } while (assigned[partition]); // Keep trying if partition already has a node
-                assigned[partition] = true;
-                population[i][j] = partition;
-            }
+        for (std::vector<int>& specimen : population) {
+            specimen = Algo::randomAssign(graph, k);
         }
 
         return population;
@@ -205,7 +238,7 @@ private:
         return offspring;
     }
 
-    static std::vector<std::vector<int>> mutate(const std::vector<std::vector<int>>& population, double mutationRate, Mutation mutationType) {
+    static std::vector<std::vector<int>> mutate(const std::vector<std::vector<int>>& population, double mutationRate, const std::string& mutationType) {
         std::vector<std::vector<int>> mutatedPopulation = population;
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -216,10 +249,10 @@ private:
                 // Decide if mutation will happen based on mutation rate
                 if (dis(gen) < mutationRate) {
 
-                    if (mutationType == BIT_FLIP) {
+                    if (mutationType == "flip") {
                         // Bit flip mutation
                         mutatedPopulation[i][j] = (mutatedPopulation[i][j] == 0) ? 1 : 0; // Flip the bit
-                    } else if (mutationType == SWAP) {
+                    } else if (mutationType == "swap") {
                         // Swap mutation
                         if (j + 1 < population[i].size()) {
                             int temp = mutatedPopulation[i][j];

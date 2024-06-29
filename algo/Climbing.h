@@ -12,7 +12,7 @@
 
 class Climbing : public Algo {
 public:
-    static std::vector<std::string> calculate(const std::vector<std::vector<int>>& graph, const int k, bool quietMode, bool runValidation, std::string neighStrat, std::string termStrat, int termValue) {
+    static std::vector<std::string> calculate(const std::vector<std::vector<int>> &graph, const int k, bool quietMode, bool runValidation, const std::string neighStrat, const std::string termStrat, int termValue) {
         int minCost = std::numeric_limits<int>::max();
         bool improvementFound = true;
 
